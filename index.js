@@ -1,3 +1,4 @@
+
 // Dice Constructor (like Animal / Pokemon)
 function Dice(sides, use) {
     this.sides = sides;
@@ -56,7 +57,7 @@ let DnD = {
         let sides = parseInt(match[2]);
         let mod = match[3] ? parseInt(match[3]) : 0;
 
-        // 🔗 LINK: choose correct dice with meaning
+        // LINK: choose correct dice with meaning
         let diceMap = {
             4: d4,
             6: d6,
@@ -76,25 +77,25 @@ let DnD = {
         return final;
     },
 
-    // ⚔️ BASIC ATTACK ROLL ONLY
+    // BASIC ATTACK ROLL ONLY
     attack: function(mod = 0) {
         console.log("\n⚔️ Attack Roll (d20)");
         return this.roll(`1d20+${mod}`);
     },
 
-    // 💥 DAMAGE ONLY
+    // DAMAGE ONLY
     damage: function(notation) {
         console.log("\n💥 Damage Roll");
         return this.roll(notation);
     },
 
-    // 🎲 RANDOM EVENT
+    // RANDOM EVENT: not sure if necessary pa this, u na bahala if tanggalin hehe
     randomEvent: function() {
         console.log("\n🎲 Random Event (d100)");
         return d100.roll();
     },
 
-    // ✅ FULL COMBAT (HIT → THEN DAMAGE)
+    // FULL COMBAT (HIT → THEN DAMAGE)
     attackTarget: function(attackerName, target, attackMod, damageNotation) {
         console.log(`\n⚔️ ${attackerName} attacks ${target.name}!`);
 
@@ -116,14 +117,31 @@ let DnD = {
         }
     }
 };
+//CREATION OF CARACTERS
+//player one
+let player1 = {
+    name: "Manio",
+    hp: 40,
+    AC: 14,
+    class: "Warrior",
+    attackMod: 5,
+    damage: "1d8+3"
+};
 //Create an enemy
-let enemy = {
-    name: "enemy",
+let enemy1 = {
+    name: "oralCom",
     hp: 30,
     AC: 12
 };
 //kung pano gusto attack ni
-DnD.attackTarget("Hero", enemy, 5, "1d20+5");
+DnD.attackTarget(player1.name, enemy1, player1.attackMod, player1.damage);
+
+//RANDOM EVENTS(lucky rolls)
+console.log(`🎲 Rolling d${this.sides}...`);
+setTimeout(() => {
+    console.log(`👉 Result: ${result}`);
+}, 300);
+
 
 // console.log("Single rolls:");
 // console.log("d20:", d20.roll());
@@ -133,10 +151,8 @@ DnD.attackTarget("Hero", enemy, 5, "1d20+5");
 // DnD.roll("1d20+5"); //1st no.: ilan dice na gagamitn; 2nd no.: d(dice) sides na meron ung each dice; 3rd no.: modifier
 // DnD.roll("2d6+3"); ;
 
-// // Applied meaning
+// Applied meaning
 // DnD.attack(5);        // uses d20
 // DnD.damage("2d6+3"); // uses damage dice
-// DnD.randomEvent();   // uses d100
-
 // DnD.randomEvent();   // uses d100 again for another random event
 

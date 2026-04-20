@@ -164,7 +164,7 @@ let player2 = new Player({
 
 function checkLose(p1, p2) {
     if (p1.hp <= 0 || p2.hp <= 0) {
-        console.log("Game Over");
+        console.log(`\n💀 GAME OVER for ${p1.hp <= 0 ? p1.name : p2.name}!`);
         return true;
     }
     return false;
@@ -196,7 +196,7 @@ function playRound() {
         player1.rollDice2(player2);
     if (checkLose(player1, player2)) return;
 
-            player2.rollDice3(player1);
+            player2.rollDice3(player1); //END ATTACK
     if (checkLose(player1, player2)) return;
 
 }

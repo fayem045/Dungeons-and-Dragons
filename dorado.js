@@ -1,7 +1,8 @@
 // 🐉 Dragon Fight (Player-Controlled)
 
-let dragon1 = { name: "Dragon 1", hp: 1000, mana: 200, extraTurns: 0 };
-let dragon2 = { name: "Dragon 2", hp: 1000, mana: 200, extraTurns: 0 };
+let dragon1 = { name: "Dragon 1", hp: 300, mana: 100, extraTurns: 0 };
+let dragon2 = { name: "Dragon 2", hp: 300, mana: 100
+    , extraTurns: 0 };
 
 let currentPlayer = dragon1;
 let opponent = dragon2;
@@ -54,9 +55,9 @@ function executeMove(roll) {
 
         case 5:
             dealDamage(50);
-            console.log("Lucky Redraw!");
-            rollAction(); // extra roll
-            return;
+            console.log("Lucky Redraw! You can roll again.");
+            currentPlayer.extraTurns++; // give 1 extra turn instead
+            break;
 
         case 6:
             dealDamage(80);

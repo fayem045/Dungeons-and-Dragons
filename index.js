@@ -1,158 +1,199 @@
+// ==========================
+// 🎲 DICE
+// ==========================
+function rollD6() {
+    return Math.floor(Math.random() * 6) + 1;
+}
 
-// Dice Constructor (like Animal / Pokemon)
-function Dice(sides, use) {
-    this.sides = sides;
-    this.use = use;
+function rollDice(sides) {
+    return Math.floor(Math.random() * sides) + 1;
+}
 
-    this.roll = function() {
-        let result = Math.floor(Math.random() * this.sides) + 1;
-        console.log(`d${this.sides} rolled: ${result}`);
-        console.log(`Use: ${this.use}`);
-        return result;
+// ==========================
+// 🐉 PLAYER
+// ==========================
+function Player(name) {
+    this.name = name;
+    this.hp = 1000;
+    this.mana = 200;
+    this.extraTurns = 0;
+
+    // 🗡️ DEFAULT ATTACK (no mana)
+    this.basicAttack = function (target) {
+        let dmg = rollDice(10) + 5;
+        target.hp -= dmg;
+        console.log(`🗡️ ${this.name} uses BASIC ATTACK → ${dmg}`);
+    };
+
+    // 🎲 ACTION BASED ON ROLL
+    this.performRoll = function (roll, target) {
+        console.log(`🎲 Rolled: ${roll}`);
+
+        let actions = {
+            1: { cost: 10, dmg: () => rollDice(6) + rollDice(4), name: "Quick Hit" },
+            2: { cost: 20, dmg: () => rollDice(6) + rollDice(6), name: "Slash" },
+            3: { cost: 30, dmg: () => rollDice(8) + rollDice(6), name: "Heavy Strike" },
+            4: { cost: 40, dmg: () => rollDice(10) + rollDice(6), name: "Fire Blast" },
+            5: { cost: 50, dmg: () => rollDice(12) + rollDice(8), name: "Dragon Rage" },
+            6: { cost: 0,  special: "ALLIN" }
+        };
+
+        let action = actions[roll];
+
+        // 💀 ALL IN
+        if (action.special === "ALLIN") {
+            if (this.mana < 30 || this.hp <= 30) {
+                console.log("❌ Cannot ALL IN → fallback");
+                return this.basicAttack(target);
+            }
+
+            this.mana = 0;
+            this.hp -= 30;
+
+            let dmg = rollDice(6) * 20;
+            target.hp -= dmg;
+
+            console.log(`🔥 ALL IN!!! → ${dmg}`);
+            return;
+        }
+
+        // ❌ NOT ENOUGH MANA
+        if (this.mana < action.cost) {
+            console.log(`❌ Not enough mana → BASIC ATTACK`);
+            return this.basicAttack(target);
+        }
+
+        // ✅ NORMAL SKILL
+        this.mana -= action.cost;
+        let dmg = action.dmg();
+        target.hp -= dmg;
+
+        console.log(`⚔️ ${this.name} used ${action.name} → ${dmg}`);
+    };
+
+    this.printStatus = function () {
+        console.log(`👉 ${this.name} | ❤️ ${this.hp} | 🔵 ${this.mana}`);
+    };
+}
+
+// ==========================
+// 🏁 CHECK WINNER
+// ==========================
+function checkWinner(p1, p2) {
+    if (p1.hp <= 0 && p2.hp <= 0) {
+        console.log("\n💀 DRAW!");
+        return true;
+    }
+    if (p1.hp <= 0) {
+        console.log(`\n🏆 ${p2.name} WINS!`);
+        return true;
+    }
+    if (p2.hp <= 0) {
+        console.log(`\n🏆 ${p1.name} WINS!`);
+        return true;
+    }
+    return false;
+}
+
+// ==========================
+// 🎮 GAME LOOP
+// ==========================
+function startGame(p1, p2) {
+
+    let current = p1;
+    let opponent = p2;
+
+    let turn = 1;
+
+    while (true) {
+
+        console.log(`\n===== TURN ${turn}: ${current.name} =====`);
+
+        // 🎮 AUTO CHOICE (replace with input later)
+        let choice = Math.random() < 0.7 ? "roll" : "skip";
+        console.log(`👉 Choice: ${choice}`);
+
+        if (choice === "skip") {
+            console.log(`⏭️ ${current.name} skipped!`);
+            current.extraTurns = 2;
+        } else {
+            let roll = rollD6();
+            current.performRoll(roll, opponent);
+        }
+
+        current.printStatus();
+        opponent.printStatus();
+
+        if (checkWinner(current, opponent)) break;
+
+        // 🔁 TURN SWITCHING LOGIC
+        if (current.extraTurns > 0) {
+            current.extraTurns--;
+            console.log(`⚡ EXTRA TURN for ${current.name}`);
+        } else {
+            // swap players
+            [current, opponent] = [opponent, current];
+        }
+
+        turn++;
     }
 }
 
-// Create dice instances (NOW WITH PURPOSE)
-let d4  = new Dice(4,  "Small damage, buffs, minor healing");
-let d6  = new Dice(6,  "Common damage, spells, Wizard HP");
-let d8  = new Dice(8,  "Weapon damage, healing, Cleric HP");
-let d10 = new Dice(10, "Weapon damage, Fighter HP, percentile");
-let d12 = new Dice(12, "Heavy damage, Barbarian HP");
-let d20 = new Dice(20, "Attack rolls, skill checks, saving throws");
-
-// d100 special (2 d10s)
-let d100 = {
-    roll: function() {
-        let tens = Math.floor(Math.random() * 10) * 10;
-        let ones = Math.floor(Math.random() * 10);
-        let total = tens + ones;
-
-        console.log(`d100 rolled: ${total}`);
-        console.log("Use: Random events / tables");
-        return total;
-    }
-};
-
-// rolls of dice/s
-let DnD = {
-    rollMany: function(dice, times) {
-        let rolls = [];
-        let total = 0;
-
-        for (let i = 0; i < times; i++) {
-            let r = dice.roll();
-            rolls.push(r);
-            total += r;
-        }
-
-        console.log(`Rolls: [${rolls}] Total: ${total}`);
-        return total;
-    },
-
-    // Roll detailed logic for dice/s
-    roll: function(notation) {
-        let match = notation.match(/(\d*)d(\d+)([+-]\d+)?/);
-
-        let num = parseInt(match[1]) || 1;
-        let sides = parseInt(match[2]);
-        let mod = match[3] ? parseInt(match[3]) : 0;
-
-        // LINK: choose correct dice with meaning
-        let diceMap = {
-            4: d4,
-            6: d6,
-            8: d8,
-            10: d10,
-            12: d12,
-            20: d20
-        };
-
-        let dice = diceMap[sides] || new Dice(sides, "Custom dice");
-
-        let result = this.rollMany(dice, num);
-        let final = result + mod;
-
-        console.log(`Modifier: ${mod}`);
-        console.log(`Final Total: ${final}`);
-        return final;
-    },
-
-    // BASIC ATTACK ROLL ONLY
-    attack: function(mod = 0) {
-        console.log("\n⚔️ Attack Roll (d20)");
-        return this.roll(`1d20+${mod}`);
-    },
-
-    // DAMAGE ONLY
-    damage: function(notation) {
-        console.log("\n💥 Damage Roll");
-        return this.roll(notation);
-    },
-
-    // RANDOM EVENT: not sure if necessary pa this, u na bahala if tanggalin hehe
-    randomEvent: function() {
-        console.log("\n🎲 Random Event (d100)");
-        return d100.roll();
-    },
-
-    // FULL COMBAT (HIT → THEN DAMAGE)
-    attackTarget: function(attackerName, target, attackMod, damageNotation) {
-        console.log(`\n⚔️ ${attackerName} attacks ${target.name}!`);
-
-        // Step 1: attack roll
-        let attackRoll = this.attack(attackMod);
-
-        // Step 2: check hit vs AC
-        if (attackRoll >= target.AC) {
-            console.log("✅ HIT!");
-
-            // Step 3: damage ONLY if hit
-            let dmg = this.damage(damageNotation);
-            target.hp -= dmg;
-
-            console.log(`💥 ${target.name} takes ${dmg} damage!`);
-            console.log(`❤️ ${target.name} HP: ${target.hp}`);
-        } else {
-            console.log("❌ MISS! No damage.");
-        }
-    }
-};
-//CREATION OF CARACTERS
-//player one
-let player1 = {
+let player1 = new Player({
     name: "Manio",
-    hp: 40,
-    AC: 14,
-    class: "Warrior",
-    attackMod: 5,
-    damage: "1d8+3"
-};
-//Create an enemy
-let enemy1 = {
-    name: "oralCom",
-    hp: 30,
-    AC: 12
-};
-//kung pano gusto attack ni
-DnD.attackTarget(player1.name, enemy1, player1.attackMod, player1.damage);
+    hp: 45,
+    mana: 100,
+    skills: [
+        { name: "Quick Jab", cost: 10, damage: () => rollDice(4) + rollDice(4) },
+        { name: "Lightning Slash", cost: 25, damage: () => rollDice(6) + rollDice(6) },
+        { name: "Thunder Burst", cost: 50, damage: () => rollDice(6) + rollDice(10) }
+    ]
+});
 
-//RANDOM EVENTS(lucky rolls)
-console.log(`🎲 Rolling d${this.sides}...`);
-setTimeout(() => {
-    console.log(`👉 Result: ${result}`);
-}, 300);
+let player2 = new Player({
+    name: "OralCom",
+    hp: 60,
+    mana: 70,
+    skills: [
+        { name: "Heavy Punch", cost: 5, damage: () => rollDice(6) },
+        { name: "Crushing Blow", cost: 20, damage: () => rollDice(8) + rollDice(6) },
+        { name: "Earth Breaker", cost: 40, damage: () => rollDice(12) + rollDice(6) }
+    ]
+});
 
 
-// console.log("Single rolls:");
-// console.log("d20:", d20.roll());
-// console.log("d6:", d6.roll());
 
-// console.log("\nDnD notation:");
-// DnD.roll("1d20+5"); //1st no.: ilan dice na gagamitn; 2nd no.: d(dice) sides na meron ung each dice; 3rd no.: modifier
-// DnD.roll("2d6+3"); ;
+function checkLose(p1, p2) {
+    if (p1.hp <= 0 || p2.hp <= 0) {
+        console.log("Game Over");
+        return true;
+    }
+    return false;
+}
 
-// Applied meaning
-// DnD.attack(5);        // uses d20
-// DnD.damage("2d6+3"); // uses damage dice
-// DnD.randomEvent();   // uses d100 again for another random event
+function playRound() {
+    console.log("ROUND");
 
+    player1.rollDice2(player2);
+    if (checkLose(player1, player2)) return;
+
+    player2.rollDice2(player1);
+    if (checkLose(player1, player2)) return;
+
+    // console.log("Round continues...");
+
+     player1.rollDice3(player2);
+    if (checkLose(player1, player2)) return;
+
+        player2.rollDice2(player1);
+    if (checkLose(player1, player2)) return;
+
+        player1.rollDice1(player2);
+    if (checkLose(player1, player2)) return;
+
+        player2.rollDice3(player1);
+    if (checkLose(player1, player2)) return;
+
+}
+
+playRound();

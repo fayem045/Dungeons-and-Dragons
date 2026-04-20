@@ -1,6 +1,4 @@
-// ==========================
-// 🎲 DICE
-// ==========================
+//  DICE
 function Dice(sides, type) {
     this.sides = sides;
     this.type = type;
@@ -19,9 +17,9 @@ function rollDice(sides) {
     return Math.floor(Math.random() * sides) + 1;
 }
 
-// ==========================
-// 🧍 PLAYER
-// ==========================
+
+// PLAYERs Matic status
+
 function Player(config) {
     this.name = config.name;
     this.hp = config.hp;
@@ -30,9 +28,8 @@ function Player(config) {
     this.maxMana = config.mana;
     this.skills = config.skills;
 
-    // ==========================
-    // 🌿 DICE 1 - REGEN
-    // ==========================
+    // DICE 1 - REGEN
+
     this.rollDice1 = function () {
         console.log(`\n===== ${this.name} REGEN DICE =====`);
         let roll = regenDice.roll();
@@ -52,9 +49,7 @@ function Player(config) {
         this.printStatus();
     };
 
-    // ==========================
-    // ⚔️ DICE 2 - SKILL
-    // ==========================
+    //  DICE 2 - SKILL
     this.rollDice2 = function (target) {
         console.log(`\n===== ${this.name} ATTACK DICE =====`);
         let roll = skillDice.roll();
@@ -81,9 +76,8 @@ function Player(config) {
         target.printStatus();
     };
 
-    // ==========================
     // 💀 DICE 3 - ALL IN
-    // ==========================
+
     this.rollDice3 = function (target) {
         console.log(`\n===== ${this.name} ALL IN DICE =====`);
 
@@ -112,9 +106,8 @@ function Player(config) {
         target.printStatus();
     };
 
-    // ==========================
-    // 📊 STATUS
-    // ==========================
+
+    //  STATUS
     this.printStatus = function () {
         console.log(`👉 ${this.name} | ❤️ ${this.hp} | 🔵 ${this.mana}`);
     };
@@ -195,6 +188,9 @@ function playRound() {
     if (checkLose(player1, player2)) return;
 
         player1.rollDice1(player2);
+    if (checkLose(player1, player2)) return;
+
+        player2.rollDice3(player1);
     if (checkLose(player1, player2)) return;
 
 }

@@ -180,8 +180,6 @@ function playRound() {
     player2.rollDice2(player1);
     if (checkLose(player1, player2)) return;
 
-    // console.log("Round continues...");
-
      player1.rollDice3(player2);
     if (checkLose(player1, player2)) return;
 

@@ -193,6 +193,12 @@ function playRound() {
         player2.rollDice3(player1);
     if (checkLose(player1, player2)) return;
 
+        player1.rollDice2(player2);
+    if (checkLose(player1, player2)) return;
+
+            player2.rollDice3(player1);
+    if (checkLose(player1, player2)) return;
+
 }
 
 playRound();

@@ -170,10 +170,38 @@ function checkLose(p1, p2) {
 function playRound() {
     console.log("ROUND");
 
+<<<<<<< HEAD
 //I want this like control: current player, rolldice2 instead of  player1.rollDice2(player2);
     if (checkLose(player1, player2)) return;
 
    
+=======
+    // player1.rollDice2(player2);
+    // if (checkLose(player1, player2)) return;
+
+    // player2.rollDice2(player1);
+    // if (checkLose(player1, player2)) return;
+
+    // // console.log("Round continues...");
+
+    //  player1.rollDice3(player2);
+    // if (checkLose(player1, player2)) return;
+
+    //     player2.rollDice2(player1);
+    // if (checkLose(player1, player2)) return;
+
+    //     player1.rollDice1(player2);
+    // if (checkLose(player1, player2)) return;
+
+    //     player2.rollDice3(player1);
+    // if (checkLose(player1, player2)) return;
+
+    //     player1.rollDice2(player2);
+    // if (checkLose(player1, player2)) return;
+
+    //         player2.rollDice3(player1); //END ATTACK
+    // if (checkLose(player1, player2)) return;
+>>>>>>> 1e8a35b4bcbb1f11672d3d24e5e01927007899df
 
 }
 

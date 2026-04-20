@@ -1,144 +1,140 @@
-// ==========================
-// 🎲 DICE
-// ==========================
-function rollD6() {
-    return Math.floor(Math.random() * 6) + 1;
+//  DICE
+function Dice(sides, type) {
+    this.sides = sides;
+    this.type = type;
+
+    this.roll = function () {
+        let result = Math.floor(Math.random() * this.sides) + 1;
+        console.log(`🎲 d${this.sides} (${this.type}) rolled: ${result}`);
+        return result;
+    };
 }
+
+let regenDice = new Dice(6, "Regen");
+let skillDice = new Dice(6, "Attack");
 
 function rollDice(sides) {
     return Math.floor(Math.random() * sides) + 1;
 }
 
-// ==========================
-// 🐉 PLAYER
-// ==========================
-function Player(name) {
-    this.name = name;
-    this.hp = 1000;
-    this.mana = 200;
-    this.extraTurns = 0;
 
-    // 🗡️ DEFAULT ATTACK (no mana)
-    this.basicAttack = function (target) {
-        let dmg = rollDice(10) + 5;
-        target.hp -= dmg;
-        console.log(`🗡️ ${this.name} uses BASIC ATTACK → ${dmg}`);
+// PLAYERs Matic status
+function Player(config) {
+    this.name = config.name;
+    this.hp = config.hp;
+    this.maxHp = config.hp;
+    this.mana = config.mana;
+    this.maxMana = config.mana;
+    this.skills = config.skills;
+
+    // DICE 1 - REGEN
+
+    this.rollDice1 = function () {
+        console.log(`\n----- ${this.name} REGEN DICE -----`);
+        let roll = regenDice.roll();
+
+        if (roll <= 3) {
+            let heal = roll * 5;
+            this.hp += heal;
+            if (this.hp > this.maxHp) this.hp = this.maxHp;
+            console.log(`❤️ Heal +${heal}`);
+        } else {
+            let manaGain = roll * 5;
+            this.mana += manaGain;
+            if (this.mana > this.maxMana) this.mana = this.maxMana;
+            console.log(`🔵 Mana +${manaGain}`);
+        }
+
+        this.printStatus();
     };
 
-    // 🎲 ACTION BASED ON ROLL
-    this.performRoll = function (roll, target) {
-        console.log(`🎲 Rolled: ${roll}`);
+    //  DICE 2 - SKILL
+    this.rollDice2 = function (target) {
+        console.log(`\n----- ${this.name} ATTACK DICE -----`);
+        let roll = skillDice.roll();
 
-        let actions = {
-            1: { cost: 10, dmg: () => rollDice(6) + rollDice(4), name: "Quick Hit" },
-            2: { cost: 20, dmg: () => rollDice(6) + rollDice(6), name: "Slash" },
-            3: { cost: 30, dmg: () => rollDice(8) + rollDice(6), name: "Heavy Strike" },
-            4: { cost: 40, dmg: () => rollDice(10) + rollDice(6), name: "Fire Blast" },
-            5: { cost: 50, dmg: () => rollDice(12) + rollDice(8), name: "Dragon Rage" },
-            6: { cost: 0,  special: "ALLIN" }
-        };
+        let skill;
+        if (roll <= 2) skill = this.skills[0];
+        else if (roll <= 4) skill = this.skills[1];
+        else skill = this.skills[2];
 
-        let action = actions[roll];
-
-        // 💀 ALL IN
-        if (action.special === "ALLIN") {
-            if (this.mana < 30 || this.hp <= 30) {
-                console.log("❌ Cannot ALL IN → fallback");
-                return this.basicAttack(target);
-            }
-
-            this.mana = 0;
-            this.hp -= 30;
-
-            let dmg = rollDice(6) * 20;
-            target.hp -= dmg;
-
-            console.log(`🔥 ALL IN!!! → ${dmg}`);
+        if (this.mana < skill.cost) {
+            console.log(`❌ Not enough mana for ${skill.name}`);
             return;
         }
 
-        // ❌ NOT ENOUGH MANA
-        if (this.mana < action.cost) {
-            console.log(`❌ Not enough mana → BASIC ATTACK`);
-            return this.basicAttack(target);
-        }
+        this.mana -= skill.cost;
 
-        // ✅ NORMAL SKILL
-        this.mana -= action.cost;
-        let dmg = action.dmg();
+        let dmg = skill.damage();
         target.hp -= dmg;
 
-        console.log(`⚔️ ${this.name} used ${action.name} → ${dmg}`);
+        console.log(`🔥 ${skill.name}`);
+        console.log(`💥 ${target.name} takes ${dmg}`);
+
+        this.printStatus();
+        target.printStatus();
     };
 
+    //  DICE 3 - ALL IN
+
+    this.rollDice3 = function (target) {
+        console.log(`\n----- ${this.name} ALL IN DICE -----`);
+
+        let roll = skillDice.roll();
+
+        if (this.mana < 30) {
+            console.log(`❌ Not enough mana for ALL IN!`);
+            return;
+        }
+
+        if (this.hp <= 30) {
+            console.log(`❌ Not enough HP for ALL IN!`);
+            return;
+        }
+
+        this.mana = 0;
+        this.hp -= 30;
+
+        let damage = roll * 10; // ✅ FIXED
+        target.hp -= damage;
+
+        console.log(`🔥 ALL IN!!!`);
+        console.log(`💥 ${target.name} takes ${damage}`);
+
+        this.printStatus();
+        target.printStatus();
+    };
+
+
+    //  STATUS
     this.printStatus = function () {
         console.log(`👉 ${this.name} | ❤️ ${this.hp} | 🔵 ${this.mana}`);
     };
-}
 
-// ==========================
-// 🏁 CHECK WINNER
-// ==========================
-function checkWinner(p1, p2) {
+    function checkLose(p1, p2) {
+
     if (p1.hp <= 0 && p2.hp <= 0) {
-        console.log("\n💀 DRAW!");
+        console.log("\n💀 BOTH PLAYERS LOST!");
         return true;
     }
+
     if (p1.hp <= 0) {
-        console.log(`\n🏆 ${p2.name} WINS!`);
+        console.log(`\n💀 ${p1.name} LOST!`);
+        console.log(`🏆 ${p2.name} WINS!`);
         return true;
     }
+
     if (p2.hp <= 0) {
-        console.log(`\n🏆 ${p1.name} WINS!`);
+        console.log(`\n💀 ${p2.name} LOST!`);
+        console.log(`🏆 ${p1.name} WINS!`);
         return true;
     }
-    return false;
+
+    return false; // no one lost yet
+}
 }
 
-// ==========================
-// 🎮 GAME LOOP
-// ==========================
-function startGame(p1, p2) {
-
-    let current = p1;
-    let opponent = p2;
-
-    let turn = 1;
-
-    while (true) {
-
-        console.log(`\n===== TURN ${turn}: ${current.name} =====`);
-
-        // 🎮 AUTO CHOICE (replace with input later)
-        let choice = Math.random() < 0.7 ? "roll" : "skip";
-        console.log(`👉 Choice: ${choice}`);
-
-        if (choice === "skip") {
-            console.log(`⏭️ ${current.name} skipped!`);
-            current.extraTurns = 2;
-        } else {
-            let roll = rollD6();
-            current.performRoll(roll, opponent);
-        }
-
-        current.printStatus();
-        opponent.printStatus();
-
-        if (checkWinner(current, opponent)) break;
-
-        // 🔁 TURN SWITCHING LOGIC
-        if (current.extraTurns > 0) {
-            current.extraTurns--;
-            console.log(`⚡ EXTRA TURN for ${current.name}`);
-        } else {
-            // swap players
-            [current, opponent] = [opponent, current];
-        }
-
-        turn++;
-    }
-}
-
+// 🧪 PLAYERS
 let player1 = new Player({
     name: "Manio",
     hp: 45,
@@ -165,7 +161,7 @@ let player2 = new Player({
 
 function checkLose(p1, p2) {
     if (p1.hp <= 0 || p2.hp <= 0) {
-        console.log("Game Over");
+        console.log(`\n💀 GAME OVER for ${p1.hp <= 0 ? p1.name : p2.name}!`);
         return true;
     }
     return false;
@@ -174,24 +170,213 @@ function checkLose(p1, p2) {
 function playRound() {
     console.log("ROUND");
 
-    player1.rollDice2(player2);
+        player1.rollDice2(player2);
     if (checkLose(player1, player2)) return;
 
-    player2.rollDice2(player1);
-    if (checkLose(player1, player2)) return;
-
-     player1.rollDice3(player2);
-    if (checkLose(player1, player2)) return;
-
-        player2.rollDice2(player1);
-    if (checkLose(player1, player2)) return;
-
-        player1.rollDice1(player2);
-    if (checkLose(player1, player2)) return;
-
-        player2.rollDice3(player1);
-    if (checkLose(player1, player2)) return;
+   
 
 }
 
 playRound();
+
+
+
+
+
+// // ==========================
+// // 🎲 DICE
+// // ==========================
+// function rollD6() {
+//     return Math.floor(Math.random() * 6) + 1;
+// }
+
+// function rollDice(sides) {
+//     return Math.floor(Math.random() * sides) + 1;
+// }
+
+// // ==========================
+// // 🐉 PLAYER
+// // ==========================
+// function Player(name) {
+//     this.name = name;
+//     this.hp = 1000;
+//     this.mana = 200;
+//     this.extraTurns = 0;
+
+//     // 🗡️ DEFAULT ATTACK (no mana)
+//     this.basicAttack = function (target) {
+//         let dmg = rollDice(10) + 5;
+//         target.hp -= dmg;
+//         console.log(`🗡️ ${this.name} uses BASIC ATTACK → ${dmg}`);
+//     };
+
+//     // 🎲 ACTION BASED ON ROLL
+//     this.performRoll = function (roll, target) {
+//         console.log(`🎲 Rolled: ${roll}`);
+
+//         let actions = {
+//             1: { cost: 10, dmg: () => rollDice(6) + rollDice(4), name: "Quick Hit" },
+//             2: { cost: 20, dmg: () => rollDice(6) + rollDice(6), name: "Slash" },
+//             3: { cost: 30, dmg: () => rollDice(8) + rollDice(6), name: "Heavy Strike" },
+//             4: { cost: 40, dmg: () => rollDice(10) + rollDice(6), name: "Fire Blast" },
+//             5: { cost: 50, dmg: () => rollDice(12) + rollDice(8), name: "Dragon Rage" },
+//             6: { cost: 0,  special: "ALLIN" }
+//         };
+
+//         let action = actions[roll];
+
+//         // 💀 ALL IN
+//         if (action.special === "ALLIN") {
+//             if (this.mana < 30 || this.hp <= 30) {
+//                 console.log("❌ Cannot ALL IN → fallback");
+//                 return this.basicAttack(target);
+//             }
+
+//             this.mana = 0;
+//             this.hp -= 30;
+
+//             let dmg = rollDice(6) * 20;
+//             target.hp -= dmg;
+
+//             console.log(`🔥 ALL IN!!! → ${dmg}`);
+//             return;
+//         }
+
+//         // ❌ NOT ENOUGH MANA
+//         if (this.mana < action.cost) {
+//             console.log(`❌ Not enough mana → BASIC ATTACK`);
+//             return this.basicAttack(target);
+//         }
+
+//         // ✅ NORMAL SKILL
+//         this.mana -= action.cost;
+//         let dmg = action.dmg();
+//         target.hp -= dmg;
+
+//         console.log(`⚔️ ${this.name} used ${action.name} → ${dmg}`);
+//     };
+
+//     this.printStatus = function () {
+//         console.log(`👉 ${this.name} | ❤️ ${this.hp} | 🔵 ${this.mana}`);
+//     };
+// }
+
+// // ==========================
+// // 🏁 CHECK WINNER
+// // ==========================
+// function checkWinner(p1, p2) {
+//     if (p1.hp <= 0 && p2.hp <= 0) {
+//         console.log("\n💀 DRAW!");
+//         return true;
+//     }
+//     if (p1.hp <= 0) {
+//         console.log(`\n🏆 ${p2.name} WINS!`);
+//         return true;
+//     }
+//     if (p2.hp <= 0) {
+//         console.log(`\n🏆 ${p1.name} WINS!`);
+//         return true;
+//     }
+//     return false;
+// }
+
+// // ==========================
+// // 🎮 GAME LOOP
+// // ==========================
+// function startGame(p1, p2) {
+
+//     let current = p1;
+//     let opponent = p2;
+
+//     let turn = 1;
+
+//     while (true) {
+
+//         console.log(`\n===== TURN ${turn}: ${current.name} =====`);
+
+//         // 🎮 AUTO CHOICE (replace with input later)
+//         let choice = Math.random() < 0.7 ? "roll" : "skip";
+//         console.log(`👉 Choice: ${choice}`);
+
+//         if (choice === "skip") {
+//             console.log(`⏭️ ${current.name} skipped!`);
+//             current.extraTurns = 2;
+//         } else {
+//             let roll = rollD6();
+//             current.performRoll(roll, opponent);
+//         }
+
+//         current.printStatus();
+//         opponent.printStatus();
+
+//         if (checkWinner(current, opponent)) break;
+
+//         // 🔁 TURN SWITCHING LOGIC
+//         if (current.extraTurns > 0) {
+//             current.extraTurns--;
+//             console.log(`⚡ EXTRA TURN for ${current.name}`);
+//         } else {
+//             // swap players
+//             [current, opponent] = [opponent, current];
+//         }
+
+//         turn++;
+//     }
+// }
+
+// let player1 = new Player({
+//     name: "Manio",
+//     hp: 45,
+//     mana: 100,
+//     skills: [
+//         { name: "Quick Jab", cost: 10, damage: () => rollDice(4) + rollDice(4) },
+//         { name: "Lightning Slash", cost: 25, damage: () => rollDice(6) + rollDice(6) },
+//         { name: "Thunder Burst", cost: 50, damage: () => rollDice(6) + rollDice(10) }
+//     ]
+// });
+
+// let player2 = new Player({
+//     name: "OralCom",
+//     hp: 60,
+//     mana: 70,
+//     skills: [
+//         { name: "Heavy Punch", cost: 5, damage: () => rollDice(6) },
+//         { name: "Crushing Blow", cost: 20, damage: () => rollDice(8) + rollDice(6) },
+//         { name: "Earth Breaker", cost: 40, damage: () => rollDice(12) + rollDice(6) }
+//     ]
+// });
+
+
+
+// function checkLose(p1, p2) {
+//     if (p1.hp <= 0 || p2.hp <= 0) {
+//         console.log("Game Over");
+//         return true;
+//     }
+//     return false;
+// }
+
+// function playRound() {
+//     console.log("ROUND");
+
+//     player1.rollDice2(player2);
+//     if (checkLose(player1, player2)) return;
+
+//     player2.rollDice2(player1);
+//     if (checkLose(player1, player2)) return;
+
+//      player1.rollDice3(player2);
+//     if (checkLose(player1, player2)) return;
+
+//         player2.rollDice2(player1);
+//     if (checkLose(player1, player2)) return;
+
+//         player1.rollDice1(player2);
+//     if (checkLose(player1, player2)) return;
+
+//         player2.rollDice3(player1);
+//     if (checkLose(player1, player2)) return;
+
+// }
+
+// playRound();

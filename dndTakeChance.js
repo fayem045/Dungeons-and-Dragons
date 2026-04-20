@@ -1,218 +1,202 @@
 // ==========================
 // 🎲 DICE
 // ==========================
-function Dice(sides) {
+function Dice(sides, type) {
     this.sides = sides;
+    this.type = type;
 
-    this.roll = function() {
+    this.roll = function () {
         let result = Math.floor(Math.random() * this.sides) + 1;
-        console.log(`🎲 d${this.sides} → ${result}`);
+        console.log(`🎲 d${this.sides} (${this.type}) rolled: ${result}`);
         return result;
     };
 }
 
-let diceMap = {
-    4: new Dice(4),
-    6: new Dice(6),
-    8: new Dice(8),
-    10: new Dice(10),
-    12: new Dice(12),
-    20: new Dice(20)
-};
+let regenDice = new Dice(6, "Regen");
+let skillDice = new Dice(6, "Attack");
 
-// ==========================
-// ⚔️ DnD SYSTEM
-// ==========================
-let DnD = {
-
-    roll(notation) {
-        let match = notation.match(/(\d*)d(\d+)([+-]\d+)?/);
-
-        let num = parseInt(match[1]) || 1;
-        let sides = parseInt(match[2]);
-        let mod = match[3] ? parseInt(match[3]) : 0;
-
-        let total = 0;
-        for (let i = 0; i < num; i++) {
-            total += diceMap[sides].roll();
-        }
-
-        let final = total + mod;
-        console.log(`➕ ${mod} → ${final}`);
-        return final;
-    },
-
-    attack(mod = 0) {
-        console.log("\n⚔️ Rolling Attack...");
-        return this.roll(`1d20+${mod}`);
-    },
-
-    damage(notation) {
-        console.log("💥 Rolling Damage...");
-        return this.roll(notation);
-    },
-
-    // ==========================
-    // 🎮 COMMAND PARSER
-    // ==========================
-    parseCommand(cmd) {
-        let parts = cmd.split(" ");
-        return {
-            action: parts[0],
-            type: parts[1] || "safe"
-        };
-    },
-
-    // ==========================
-    // ⚔️ ACTION EXECUTION
-    // ==========================
-    executeCommand(attacker, target, cmd) {
-
-        let parsed = this.parseCommand(cmd);
-
-        if (parsed.action !== "attack") {
-            console.log("❌ Unknown command!");
-            return;
-        }
-
-        const Actions = {
-            safe:  { mod: 0,  dmg: attacker.damage },
-            power: { mod: -3, dmg: attacker.damage, bonus: 5 },
-            wild:  { mod: 0,  dmg: attacker.damage, double: true, self: true },
-            allin: { mod: 0,  dmg: "3d10", allin: true }
-        };
-
-        let action = Actions[parsed.type] || Actions.safe;
-
-        console.log(`\n🧠 ${attacker.name} used command: "${cmd}"`);
-        console.log(`👉 Action: ${parsed.type.toUpperCase()}`);
-
-        let attackRoll = this.attack(attacker.attackMod + action.mod);
-
-        // 💀 CRIT FAIL
-        if (attackRoll <= 3) {
-            console.log("💀 CRITICAL FAIL!");
-            attacker.hp -= this.damage("1d4");
-            return;
-        }
-
-        // 🎲 ALL-IN
-        if (action.allin) {
-            console.log("🎲 ALL-IN MOVE!");
-
-            if (attackRoll >= target.AC) {
-                let dmg = this.damage(action.dmg);
-                console.log("💥 MASSIVE DAMAGE!");
-                target.hp -= dmg;
-            } else {
-                console.log("💀 BACKFIRED!");
-                attacker.hp -= this.damage("1d8");
-            }
-            return;
-        }
-
-        // ✅ HIT
-        if (attackRoll >= target.AC) {
-            console.log("✅ HIT!");
-
-            let dmg = this.damage(action.dmg);
-
-            if (action.bonus) {
-                dmg += action.bonus;
-                console.log("💥 +5 bonus");
-            }
-
-            if (action.double) {
-                dmg *= 2;
-                console.log("🔥 DOUBLE DAMAGE!");
-            }
-
-            if (Math.random() < attacker.luck * 0.05) {
-                console.log("🍀 LUCK BONUS!");
-                dmg += 3;
-            }
-
-            target.hp -= dmg;
-            console.log(`💥 ${target.name} takes ${dmg}`);
-
-        } else {
-            console.log("❌ MISS!");
-
-            if (action.self) {
-                let self = this.damage("1d6");
-                console.log(`💀 Self damage ${self}`);
-                attacker.hp -= self;
-            }
-        }
-
-        console.log(`❤️ ${attacker.name}: ${attacker.hp}`);
-        console.log(`❤️ ${target.name}: ${target.hp}`);
-    },
-
-    // 🤖 Enemy AI (still command-based)
-    enemyCommand(enemy) {
-        let options = ["attack safe", "attack power", "attack wild", "attack allin"];
-        return options[Math.floor(Math.random() * options.length)];
-    }
-};
-
-// ==========================
-// 🧍 CHARACTERS
-// ==========================
-let player = {
-    name: "Manio",
-    hp: 40,
-    AC: 14,
-    attackMod: 5,
-    damage: "1d8+3",
-    luck: 2
-};
-
-let enemy = {
-    name: "OralCom",
-    hp: 30,
-    AC: 12,
-    attackMod: 3,
-    damage: "1d6+1",
-    luck: 1
-};
-
-// ==========================
-// 🔁 BATTLE SYSTEM
-// ==========================
-function battle(p, e, playerCommands) {
-
-    console.log("💬 Type commands like: attack safe / attack wild / attack allin\n");
-    console.log(`🔥 ${p.name} vs ${e.name} begins!\n`);
-
-    let turn = 0;
-
-    while (p.hp > 0 && e.hp > 0) {
-
-        console.log(`\n===== TURN ${turn + 1} =====`);
-
-        // 👤 PLAYER COMMAND FROM ARRAY
-        let cmd = playerCommands[turn] || "attack safe";
-        DnD.executeCommand(p, e, cmd);
-
-        if (e.hp <= 0) break;
-
-        // 🤖 ENEMY COMMAND
-        let enemyCmd = DnD.enemyCommand(e);
-        DnD.executeCommand(e, p, enemyCmd);
-
-        turn++;
-    }
-
-    console.log(p.hp > 0 ? "\n🏆 YOU WIN!" : "\n💀 YOU LOST!");
+function rollDice(sides) {
+    return Math.floor(Math.random() * sides) + 1;
 }
 
 // ==========================
-// 🚀 RUN GAME
+// 🧍 PLAYER
 // ==========================
-battle(player, enemy, [
-    "attack safe",
-    "attack power",
-    "attack wild",
-    "attack allin"
-]);
+function Player(config) {
+    this.name = config.name;
+    this.hp = config.hp;
+    this.maxHp = config.hp;
+    this.mana = config.mana;
+    this.maxMana = config.mana;
+    this.skills = config.skills;
+
+    // ==========================
+    // 🌿 DICE 1 - REGEN
+    // ==========================
+    this.rollDice1 = function () {
+        console.log(`\n===== ${this.name} REGEN DICE =====`);
+        let roll = regenDice.roll();
+
+        if (roll <= 3) {
+            let heal = roll * 5;
+            this.hp += heal;
+            if (this.hp > this.maxHp) this.hp = this.maxHp;
+            console.log(`❤️ Heal +${heal}`);
+        } else {
+            let manaGain = roll * 5;
+            this.mana += manaGain;
+            if (this.mana > this.maxMana) this.mana = this.maxMana;
+            console.log(`🔵 Mana +${manaGain}`);
+        }
+
+        this.printStatus();
+    };
+
+    // ==========================
+    // ⚔️ DICE 2 - SKILL
+    // ==========================
+    this.rollDice2 = function (target) {
+        console.log(`\n===== ${this.name} ATTACK DICE =====`);
+        let roll = skillDice.roll();
+
+        let skill;
+        if (roll <= 2) skill = this.skills[0];
+        else if (roll <= 4) skill = this.skills[1];
+        else skill = this.skills[2];
+
+        if (this.mana < skill.cost) {
+            console.log(`❌ Not enough mana for ${skill.name}`);
+            return;
+        }
+
+        this.mana -= skill.cost;
+
+        let dmg = skill.damage();
+        target.hp -= dmg;
+
+        console.log(`🔥 ${skill.name}`);
+        console.log(`💥 ${target.name} takes ${dmg}`);
+
+        this.printStatus();
+        target.printStatus();
+    };
+
+    // ==========================
+    // 💀 DICE 3 - ALL IN
+    // ==========================
+    this.rollDice3 = function (target) {
+        console.log(`\n===== ${this.name} ALL IN DICE =====`);
+
+        let roll = skillDice.roll();
+
+        if (this.mana < 30) {
+            console.log(`❌ Not enough mana for ALL IN!`);
+            return;
+        }
+
+        if (this.hp <= 30) {
+            console.log(`❌ Not enough HP for ALL IN!`);
+            return;
+        }
+
+        this.mana = 0;
+        this.hp -= 30;
+
+        let damage = roll * 10; // ✅ FIXED
+        target.hp -= damage;
+
+        console.log(`🔥 ALL IN!!!`);
+        console.log(`💥 ${target.name} takes ${damage}`);
+
+        this.printStatus();
+        target.printStatus();
+    };
+
+    // ==========================
+    // 📊 STATUS
+    // ==========================
+    this.printStatus = function () {
+        console.log(`👉 ${this.name} | ❤️ ${this.hp} | 🔵 ${this.mana}`);
+    };
+
+    function checkLose(p1, p2) {
+
+    if (p1.hp <= 0 && p2.hp <= 0) {
+        console.log("\n💀 BOTH PLAYERS LOST!");
+        return true;
+    }
+
+    if (p1.hp <= 0) {
+        console.log(`\n💀 ${p1.name} LOST!`);
+        console.log(`🏆 ${p2.name} WINS!`);
+        return true;
+    }
+
+    if (p2.hp <= 0) {
+        console.log(`\n💀 ${p2.name} LOST!`);
+        console.log(`🏆 ${p1.name} WINS!`);
+        return true;
+    }
+
+    return false; // no one lost yet
+}
+}
+
+// ==========================
+// 🧪 PLAYERS
+// ==========================
+let player1 = new Player({
+    name: "Manio",
+    hp: 45,
+    mana: 100,
+    skills: [
+        { name: "Quick Jab", cost: 10, damage: () => rollDice(4) + rollDice(4) },
+        { name: "Lightning Slash", cost: 25, damage: () => rollDice(6) + rollDice(6) },
+        { name: "Thunder Burst", cost: 50, damage: () => rollDice(6) + rollDice(10) }
+    ]
+});
+
+let player2 = new Player({
+    name: "OralCom",
+    hp: 60,
+    mana: 70,
+    skills: [
+        { name: "Heavy Punch", cost: 5, damage: () => rollDice(6) },
+        { name: "Crushing Blow", cost: 20, damage: () => rollDice(8) + rollDice(6) },
+        { name: "Earth Breaker", cost: 40, damage: () => rollDice(12) + rollDice(6) }
+    ]
+});
+
+
+
+function checkLose(p1, p2) {
+    if (p1.hp <= 0 || p2.hp <= 0) {
+        console.log("Game Over");
+        return true;
+    }
+    return false;
+}
+
+function playRound() {
+    console.log("ROUND");
+
+    player1.rollDice2(player2);
+    if (checkLose(player1, player2)) return;
+
+    player2.rollDice2(player1);
+    if (checkLose(player1, player2)) return;
+
+    // console.log("Round continues...");
+
+     player1.rollDice3(player2);
+    if (checkLose(player1, player2)) return;
+
+        player2.rollDice2(player1);
+    if (checkLose(player1, player2)) return;
+
+        player1.rollDice1(player2);
+    if (checkLose(player1, player2)) return;
+
+}
+
+playRound();

@@ -152,3 +152,24 @@ function updateUI() {
 
 // 🚀 Start
 updateUI();
+
+rollAction() 
+skipAction()
+skipAction()
+rollAction()
+rollAction()
+rollAction()
+rollAction()
+rollAction()
+rollAction()
+rollAction()
+rollAction()
+rollAction()
+rollAction()
+rollAction()
+rollAction()
+rollAction()
+rollAction()
+rollAction()
+rollAction()
+

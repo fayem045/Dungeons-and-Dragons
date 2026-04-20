@@ -19,7 +19,6 @@ function rollDice(sides) {
 
 
 // PLAYERs Matic status
-
 function Player(config) {
     this.name = config.name;
     this.hp = config.hp;
@@ -31,7 +30,7 @@ function Player(config) {
     // DICE 1 - REGEN
 
     this.rollDice1 = function () {
-        console.log(`\n===== ${this.name} REGEN DICE =====`);
+        console.log(`\n----- ${this.name} REGEN DICE -----`);
         let roll = regenDice.roll();
 
         if (roll <= 3) {
@@ -51,7 +50,7 @@ function Player(config) {
 
     //  DICE 2 - SKILL
     this.rollDice2 = function (target) {
-        console.log(`\n===== ${this.name} ATTACK DICE =====`);
+        console.log(`\n----- ${this.name} ATTACK DICE -----`);
         let roll = skillDice.roll();
 
         let skill;
@@ -76,10 +75,10 @@ function Player(config) {
         target.printStatus();
     };
 
-    // 💀 DICE 3 - ALL IN
+    //  DICE 3 - ALL IN
 
     this.rollDice3 = function (target) {
-        console.log(`\n===== ${this.name} ALL IN DICE =====`);
+        console.log(`\n----- ${this.name} ALL IN DICE -----`);
 
         let roll = skillDice.roll();
 
@@ -135,9 +134,7 @@ function Player(config) {
 }
 }
 
-// ==========================
 // 🧪 PLAYERS
-// ==========================
 let player1 = new Player({
     name: "Manio",
     hp: 45,
@@ -173,31 +170,10 @@ function checkLose(p1, p2) {
 function playRound() {
     console.log("ROUND");
 
-    player1.rollDice2(player2);
+//I want this like control: current player, rolldice2 instead of  player1.rollDice2(player2);
     if (checkLose(player1, player2)) return;
 
-    player2.rollDice2(player1);
-    if (checkLose(player1, player2)) return;
-
-    // console.log("Round continues...");
-
-     player1.rollDice3(player2);
-    if (checkLose(player1, player2)) return;
-
-        player2.rollDice2(player1);
-    if (checkLose(player1, player2)) return;
-
-        player1.rollDice1(player2);
-    if (checkLose(player1, player2)) return;
-
-        player2.rollDice3(player1);
-    if (checkLose(player1, player2)) return;
-
-        player1.rollDice2(player2);
-    if (checkLose(player1, player2)) return;
-
-            player2.rollDice3(player1); //END ATTACK
-    if (checkLose(player1, player2)) return;
+   
 
 }
 

@@ -102,7 +102,7 @@ function playerTurn() {
     console.log(`1) Attack - Roll d20 (damage = roll + 3)`);
     console.log(`2) Skill - Roll d20 (damage = roll + 5)`);
     console.log(`3) Regen - Roll d6 (heal = roll + 3)`);
-    console.log(`\n⌨️ Type: action(1), action(2), or action(3)\n`);
+    // console.log(`\n⌨️ Type: action(1), action(2), or action(3)\n`);
 }
 
 // ==========================

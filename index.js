@@ -1,158 +1,175 @@
+// ==========================
+// 🎲 DICE ROLLER
+// ==========================
+function rollDice(sides) {
+    return Math.floor(Math.random() * sides) + 1;
+}
 
-// Dice Constructor (like Animal / Pokemon)
-function Dice(sides, use) {
-    this.sides = sides;
-    this.use = use;
+// ==========================
+// 🧍 CHARACTERS
+// ==========================
+let player = {
+    name: "You",
+    hp: 30,
+    maxHp: 30
+};
 
-    this.roll = function() {
-        let result = Math.floor(Math.random() * this.sides) + 1;
-        console.log(`d${this.sides} rolled: ${result}`);
-        console.log(`Use: ${this.use}`);
-        return result;
+let enemy = {
+    name: "Enemy",
+    hp: 25,
+    maxHp: 25
+};
+
+let gameActive = false;
+
+// ==========================
+// ⚔️ BATTLE ACTIONS (ROLL FIRST, THEN ATTACK)
+// ==========================
+let Actions = {
+    attack: (attacker, target) => {
+        let roll = rollDice(20);
+        console.log(`🎲 ${attacker.name} rolled d20: ${roll}`);
+        
+        // Damage scales with dice roll
+        let dmg = roll + 3;
+        target.hp -= dmg;
+        
+        console.log(`⚔️ Attack! Damage: ${dmg}`);
+        console.log(`💥 ${target.name} takes ${dmg} damage`);
+    },
+
+    skill: (attacker, target) => {
+        let roll = rollDice(20);
+        console.log(`🎲 ${attacker.name} rolled d20: ${roll}`);
+        
+        // Skill damage scales higher with dice roll
+        let dmg = roll + 5;
+        target.hp -= dmg;
+        
+        console.log(`✨ Skill! Damage: ${dmg}`);
+        console.log(`💥 ${target.name} takes ${dmg} damage`);
+    },
+
+    regen: (attacker, target) => {
+        let roll = rollDice(6);
+        console.log(`🎲 ${attacker.name} rolled d6: ${roll}`);
+        
+        let heal = roll + 3;
+        attacker.hp = Math.min(attacker.hp + heal, attacker.maxHp);
+        
+        console.log(`💚 Regen! Healed: ${heal} HP`);
+        console.log(`❤️ ${attacker.name} HP: ${attacker.hp}/${attacker.maxHp}`);
+    }
+};
+
+// ==========================
+// 📊 SHOW STATUS
+// ==========================
+function showStatus() {
+    console.log(`\n❤️ ${player.name}: ${player.hp}/${player.maxHp} HP`);
+    console.log(`❤️ ${enemy.name}: ${enemy.hp}/${enemy.maxHp} HP\n`);
+}
+
+// ==========================
+// 🤖 ENEMY AI
+// ==========================
+function enemyTurn() {
+    let choice = Math.random();
+    
+    if (enemy.hp < 10) {
+        console.log(`\n🤖 Enemy uses: Regen`);
+        Actions.regen(enemy, player);
+    } else if (choice < 0.7) {
+        console.log(`\n🤖 Enemy uses: Attack`);
+        Actions.attack(enemy, player);
+    } else {
+        console.log(`\n🤖 Enemy uses: Skill`);
+        Actions.skill(enemy, player);
     }
 }
 
-// Create dice instances (NOW WITH PURPOSE)
-let d4  = new Dice(4,  "Small damage, buffs, minor healing");
-let d6  = new Dice(6,  "Common damage, spells, Wizard HP");
-let d8  = new Dice(8,  "Weapon damage, healing, Cleric HP");
-let d10 = new Dice(10, "Weapon damage, Fighter HP, percentile");
-let d12 = new Dice(12, "Heavy damage, Barbarian HP");
-let d20 = new Dice(20, "Attack rolls, skill checks, saving throws");
-
-// d100 special (2 d10s)
-let d100 = {
-    roll: function() {
-        let tens = Math.floor(Math.random() * 10) * 10;
-        let ones = Math.floor(Math.random() * 10);
-        let total = tens + ones;
-
-        console.log(`d100 rolled: ${total}`);
-        console.log("Use: Random events / tables");
-        return total;
+// ==========================
+// 🎮 INTERACTIVE GAME (CONSOLE ONLY)
+// ==========================
+function playerTurn() {
+    if (player.hp <= 0 || enemy.hp <= 0) {
+        endGame();
+        return;
     }
-};
 
-// rolls of dice/s
-let DnD = {
-    rollMany: function(dice, times) {
-        let rolls = [];
-        let total = 0;
+    gameActive = true;
+    console.log(`--- YOUR TURN ---`);
+    console.log(`1) Attack - Roll d20 (damage = roll + 3)`);
+    console.log(`2) Skill - Roll d20 (damage = roll + 5)`);
+    console.log(`3) Regen - Roll d6 (heal = roll + 3)`);
+    // console.log(`\n⌨️ Type: action(1), action(2), or action(3)\n`);
+}
 
-        for (let i = 0; i < times; i++) {
-            let r = dice.roll();
-            rolls.push(r);
-            total += r;
-        }
-
-        console.log(`Rolls: [${rolls}] Total: ${total}`);
-        return total;
-    },
-
-    // Roll detailed logic for dice/s
-    roll: function(notation) {
-        let match = notation.match(/(\d*)d(\d+)([+-]\d+)?/);
-
-        let num = parseInt(match[1]) || 1;
-        let sides = parseInt(match[2]);
-        let mod = match[3] ? parseInt(match[3]) : 0;
-
-        // LINK: choose correct dice with meaning
-        let diceMap = {
-            4: d4,
-            6: d6,
-            8: d8,
-            10: d10,
-            12: d12,
-            20: d20
-        };
-
-        let dice = diceMap[sides] || new Dice(sides, "Custom dice");
-
-        let result = this.rollMany(dice, num);
-        let final = result + mod;
-
-        console.log(`Modifier: ${mod}`);
-        console.log(`Final Total: ${final}`);
-        return final;
-    },
-
-    // BASIC ATTACK ROLL ONLY
-    attack: function(mod = 0) {
-        console.log("\n⚔️ Attack Roll (d20)");
-        return this.roll(`1d20+${mod}`);
-    },
-
-    // DAMAGE ONLY
-    damage: function(notation) {
-        console.log("\n💥 Damage Roll");
-        return this.roll(notation);
-    },
-
-    // RANDOM EVENT: not sure if necessary pa this, u na bahala if tanggalin hehe
-    randomEvent: function() {
-        console.log("\n🎲 Random Event (d100)");
-        return d100.roll();
-    },
-
-    // FULL COMBAT (HIT → THEN DAMAGE)
-    attackTarget: function(attackerName, target, attackMod, damageNotation) {
-        console.log(`\n⚔️ ${attackerName} attacks ${target.name}!`);
-
-        // Step 1: attack roll
-        let attackRoll = this.attack(attackMod);
-
-        // Step 2: check hit vs AC
-        if (attackRoll >= target.AC) {
-            console.log("✅ HIT!");
-
-            // Step 3: damage ONLY if hit
-            let dmg = this.damage(damageNotation);
-            target.hp -= dmg;
-
-            console.log(`💥 ${target.name} takes ${dmg} damage!`);
-            console.log(`❤️ ${target.name} HP: ${target.hp}`);
-        } else {
-            console.log("❌ MISS! No damage.");
-        }
+// ==========================
+// 🎯 PLAYER ACTION HANDLER
+// ==========================
+function action(choice) {
+    if (!gameActive) {
+        console.log("❌ Game not active! Refresh page to start.");
+        return;
     }
-};
-//CREATION OF CARACTERS
-//player one
-let player1 = {
-    name: "Manio",
-    hp: 40,
-    AC: 14,
-    class: "Warrior",
-    attackMod: 5,
-    damage: "1d8+3"
-};
-//Create an enemy
-let enemy1 = {
-    name: "oralCom",
-    hp: 30,
-    AC: 12
-};
-//kung pano gusto attack ni
-DnD.attackTarget(player1.name, enemy1, player1.attackMod, player1.damage);
 
-//RANDOM EVENTS(lucky rolls)
-console.log(`🎲 Rolling d${this.sides}...`);
-setTimeout(() => {
-    console.log(`👉 Result: ${result}`);
-}, 300);
+    if (choice === 1) {
+        console.log();
+        Actions.attack(player, enemy);
+    } else if (choice === 2) {
+        console.log();
+        Actions.skill(player, enemy);
+    } else if (choice === 3) {
+        console.log();
+        Actions.regen(player, enemy);
+    } else {
+        console.log("❌ Invalid choice! Use: action(1), action(2), or action(3)\n");
+        return;
+    }
 
+    showStatus();
 
-// console.log("Single rolls:");
-// console.log("d20:", d20.roll());
-// console.log("d6:", d6.roll());
+    if (enemy.hp <= 0) {
+        endGame();
+        return;
+    }
 
-// console.log("\nDnD notation:");
-// DnD.roll("1d20+5"); //1st no.: ilan dice na gagamitn; 2nd no.: d(dice) sides na meron ung each dice; 3rd no.: modifier
-// DnD.roll("2d6+3"); ;
+    // Enemy turn
+    enemyTurn();
+    showStatus();
 
-// Applied meaning
-// DnD.attack(5);        // uses d20
-// DnD.damage("2d6+3"); // uses damage dice
-// DnD.randomEvent();   // uses d100 again for another random event
+    if (player.hp <= 0) {
+        endGame();
+        return;
+    }
 
+    // Next player turn
+    playerTurn();
+}
+
+function endGame() {
+    gameActive = false;
+    if (player.hp > 0) {
+        console.log(`\n🏆 YOU WIN! ${player.name} defeated ${enemy.name}!`);
+    } else {
+        console.log(`\n💀 YOU LOST! ${enemy.name} defeated ${player.name}!`);
+    }
+}
+
+// ==========================
+// 🚀 WELCOME & START GAME
+// ==========================
+console.clear();
+console.log(`
+╔═══════════════════════════════════════════╗
+║   ⚔️  DUNGEONS & DRAGONS CONSOLE GAME  ⚔️   ║
+╚═══════════════════════════════════════════╝
+`);
+console.log(`👋 Welcome to the D&D Console Battle!`);
+console.log(`📖 Roll dice to determine your damage!`);
+console.log(`🎲 Higher rolls = Higher damage`);
+console.log(`🎮 Type actions directly in the console.\n`);
+console.log(`${player.name} vs ${enemy.name}\n`);
+showStatus();
+playerTurn();

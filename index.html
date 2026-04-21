@@ -11,17 +11,37 @@
 <body class="bg-dark">
     <div class="text-center">
     <h1 class="text-light mb-4">---Choose Your Fate---</h1>
+    <p class="text-light fs-5 mb-4">
+        <span class="fw-bold text-info" id="playerNameDisplay">You</span>
+        <span class="text-secondary"> vs </span>
+        <span class="fw-bold text-danger" id="enemyNameDisplay">Dragon</span>
+    </p>
 
     <img src="https://i.pinimg.com/originals/91/a5/89/91a5892bcda478077dfd157d7f4f7794.gif"
         class="rounded-circle img-fluid mx-auto d-block" alt="dice">
 
     <div class="mt-5 d-flex justify-content-center gap-5">
-        <button class="btn btn-danger btn-lg" onclick="action(1)">Attack</button>
-        <button class="btn btn-warning btn-lg" onclick="action(2)">Skill</button>
-        <button class="btn btn-primary btn-lg" onclick="action(3)">Regen</button>
+        <button class="btn btn-danger btn-lg action-btn" onclick="action(1)">Attack</button>
+        <button class="btn btn-warning btn-lg action-btn" onclick="action(2)">Skill</button>
+        <button class="btn btn-primary btn-lg action-btn" onclick="action(3)">Regen</button>
     </div>
 </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+    <div class="modal fade" id="endGameModal" tabindex="-1" aria-labelledby="endGameModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title" id="endGameModalLabel">Battle Result</h5>
+                </div>
+                <div class="modal-body" id="endGameMessage"></div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-success" onclick="window.location.reload()">Play Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./index.js"></script>
 </body>
 </html>

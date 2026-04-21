@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon Fight</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: white;
+            text-align: center;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .actions {
+            margin-top: 20px;
+        }
+
+        #log {
+            margin-top: 20px;
+            height: 120px;
+            overflow-y: auto;
+            background: #222;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .restart {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>🐉 Dragon Fight</h1>
+
+        <!-- TURN -->
+        <h2 id="turnText">Your Turn</h2>
+
+        <!-- ACTION BUTTONS -->
+        <div class="actions">
+            <button onclick="basicAttack()">Basic Attack</button>
+            <button onclick="skillAttack()">Skill</button>
+            <button onclick="healAction()">Heal</button>
+            <button onclick="skipAction()">Skip</button>
+        </div>
+
+        <!-- RESTART BUTTON -->
+        <div class="restart">
+            <button onclick="restartGame()">Restart Game</button>
+        </div>
+
+    </div>
+
+    <script src="dorado.js"></script>
+</body>
+</html>

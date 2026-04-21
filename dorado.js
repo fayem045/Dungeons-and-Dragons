@@ -346,6 +346,37 @@ function showStats() {
     console.log("Enemy:  " + enemy.hp + " / " + enemy.maxHP + " HP | " + enemy.mana + " / " + enemy.maxMana + " Mana");
 }
 
+function restartGame() {
+    console.log("\n🔄 Restarting game...\n");
+
+    // Reset player
+    player = {
+        hp: 1000,
+        maxHP: 1000,
+        mana: 200,
+        maxMana: 200,
+        extraTurns: 0
+    };
+
+    // Reset stage
+    currentStage = 1;
+
+    // Reset enemy using stage config
+    let config = stageConfig[currentStage];
+    enemy = {
+        hp: config.maxHP,
+        maxHP: config.maxHP,
+        mana: config.maxMana,
+        maxMana: config.maxMana
+    };
+
+    // Reset turn
+    currentPlayer = "player";
+
+    // Update UI
+    updateUI();
+}
+
 // 🚀 START
 console.log("🐉 Welcome to Dragon Fight!");
 updateUI();

@@ -8,21 +8,21 @@ let player = {
     name: "You",
     hp: 30,
     maxHp: 30,
-    mana: 20,
-    maxMana: 20,
+    mana: 15,
+    maxMana: 15,
 };
 
 let enemy = {
     name: "Enemy",
-    hp: 25,
-    maxHp: 25
+    hp: 30,
+    maxHp: 30,
+    mana:15,
+    maxMana:15,
 };
 
 let gameActive = false;
 
-// ==========================
-// ⚔️ BATTLE ACTIONS (ROLL FIRST, THEN ATTACK)
-// ==========================
+// BATTLE ACTIONS (ROLL FIRST, THEN ATTACK)
 let Actions = {
     attack: (attacker, target) => {
         let roll = rollDice(20);
@@ -30,27 +30,29 @@ let Actions = {
         
         // Damage scales with dice roll
         let dmg = roll + 3;
-        target.hp -= dmg;
+        target.hp = Math.max(0, target.hp - dmg);
         
         console.log(`⚔️ Attack! Damage: ${dmg}`);
         console.log(`💥 ${target.name} takes ${dmg} damage`);
     },
 
     skill: (attacker, target) => {
-        let manaCost = 5;
-        if (attacker.mana >= manaCost) {
+    let manaCost = 10;
+    if (attacker.mana >= manaCost) {
+        attacker.mana -= manaCost;
+
         let roll = rollDice(20);
         console.log(`🎲 ${attacker.name} rolled d20: ${roll}`);
         
-        // Skill damage scales higher with dice roll
         let dmg = roll + 5;
-        target.hp -= dmg;
+        target.hp = Math.max(0, target.hp - dmg);
         
         console.log(`✨ Skill! Damage: ${dmg}`);
         console.log(`💥 ${target.name} takes ${dmg} damage`);
-        }
-    },
-
+    } else {
+        console.log(`❌ Not enough mana!`);
+    }
+},
     regen: (attacker, target) => {
         let roll = rollDice(6);
         console.log(`🎲 ${attacker.name} rolled d6: ${roll}`);
@@ -66,7 +68,9 @@ let Actions = {
 //  SHOW STATUS
 function showStatus() {
     console.log(`\n🦸 ${player.name}: ${player.hp}/${player.maxHp} HP`);
+    console.log(`\n🦸 ${player.name}: ${player.mana}/${player.maxMana} Mana`);
     console.log(`🤖 ${enemy.name}: ${enemy.hp}/${enemy.maxHp} HP\n`);
+    console.log(`🤖 ${enemy.name}: ${enemy.mana}/${enemy.maxMana} Mana\n`);
 }
 
 //  ENEMY AI
@@ -93,11 +97,11 @@ function playerTurn() {
     }
 
     gameActive = true;
-    console.log(`--- YOUR TURN ---`);
+    console.log(`------------------------------------------------------------ YOUR TURN -----------------------------------------------`);
     console.log(`1) Attack - Roll d20 (damage = roll + 3)`);
     console.log(`2) Skill - Roll d20 (damage = roll + 5)`);
     console.log(`3) Regen - Roll d6 (heal = roll + 3)`);
-    console.log(`\n⌨️ Type: action(1), action(2), or action(3)\n`);
+    console.log(`\n⌨️ Type: action(1), action(2), or action(3)/ CHOOSE BUTTONS.\n`);
 }
 
 

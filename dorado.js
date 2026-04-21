@@ -1,155 +1,351 @@
-// 🐉 Dragon Fight (Player-Controlled)
+// 🐉 Simple Dragon Fight (Player vs Computer)
 
-let dragon1 = { name: "Dragon 1", hp: 300, mana: 100, extraTurns: 0 };
-let dragon2 = { name: "Dragon 2", hp: 300, mana: 100
-    , extraTurns: 0 };
+// PLAYER
+let player = { hp: 1000, maxHP: 1000, mana: 200, maxMana: 200, extraTurns: 0 };
 
-let currentPlayer = dragon1;
-let opponent = dragon2;
+// STAGE & ENEMY STATS
+let currentStage = 1;
+let enemy = { hp: 800, maxHP: 800, mana: 150, maxMana: 150 };
 
-// 🎲 Roll Action
-function rollAction() {
-    let roll = Math.floor(Math.random() * 6) + 1;
-    console.log(currentPlayer.name + " rolled: " + roll);
+let currentPlayer = "player";
 
-    if (hasEnoughMana(roll)) {
-        executeMove(roll);
-    } else {
-        console.log("Not enough mana → Default Attack");
-        defaultAttack();
+// 📊 STAGE CONFIGURATION
+let stageConfig = {
+    1: { maxHP: 800, maxMana: 150, name: "Stage 1: Goblin" },
+    2: { maxHP: 1200, maxMana: 200, name: "Stage 2: Orc" },
+    3: { maxHP: 1800, maxMana: 300, name: "Stage 3: Dragon Boss" }
+};
+
+// 🎲 ROLL FUNCTION
+function rollDice() {
+    return Math.floor(Math.random() * 6) + 1;
+}
+
+// ⚔️ BASIC ATTACK
+function basicAttack() {
+    let roll = rollDice();
+    let damage = 0;
+    let manaGain = 0;
+
+    console.log("\n=== PLAYER ACTION ===");
+    console.log("Action: Basic Attack");
+    console.log("Dice Roll: " + roll);
+
+    if (roll === 1) {
+        damage = 80;
+        manaGain = 30;
+    } else if (roll === 2) {
+        damage = 90;
+        manaGain = 25;
+    } else if (roll === 3) {
+        damage = 100;
+        manaGain = 20;
+    } else if (roll === 4) {
+        damage = 110;
+        manaGain = 15;
+    } else if (roll === 5) {
+        damage = 120;
+        manaGain = 10;
+    } else if (roll === 6) {
+        damage = 130;
+        manaGain = 5;
     }
+
+    enemy.hp -= damage;
+    player.mana += manaGain;
+
+    // Cap mana
+    if (player.mana > player.maxMana) player.mana = player.maxMana;
+    if (enemy.hp < 0) enemy.hp = 0;
+
+    console.log("Effect: -" + damage + " enemy HP, +" + manaGain + " mana");
+    showStats();
 
     endTurn();
 }
 
-// ⏭️ Skip Action
-function skipAction() {
-    console.log(currentPlayer.name + " skipped and gained 2 extra turns");
-    currentPlayer.extraTurns = 2;
-    endTurn(true);
-}
+// 🔥 SKILL
+function skillAttack() {
+    let roll = rollDice();
+    let damage = 0;
+    let manaCost = 0;
 
-// ⚔️ Execute Moves
-function executeMove(roll) {
-    switch (roll) {
-        case 1:
-            dealDamage(120);
-            currentPlayer.mana -= 20;
-            break;
+    console.log("\n=== PLAYER ACTION ===");
+    console.log("Action: Skill");
+    console.log("Dice Roll: " + roll);
 
-        case 2:
-            dealDamage(200);
-            currentPlayer.mana -= 50;
-            break;
-
-        case 3:
-            dealDamage(150);
-            currentPlayer.mana -= 10;
-            break;
-
-        case 4:
-            dealDamage(130);
-            currentPlayer.mana -= 30;
-            heal(50);
-            break;
-
-        case 5:
-            dealDamage(50);
-            console.log("Lucky Redraw! You can roll again.");
-            currentPlayer.extraTurns++; // give 1 extra turn instead
-            break;
-
-        case 6:
-            dealDamage(80);
-            currentPlayer.mana += 60;
-            break;
+    if (roll === 1) {
+        damage = 150;
+        manaCost = 20;
+    } else if (roll === 2) {
+        damage = 180;
+        manaCost = 30;
+    } else if (roll === 3) {
+        damage = 210;
+        manaCost = 40;
+    } else if (roll === 4) {
+        damage = 240;
+        manaCost = 50;
+    } else if (roll === 5) {
+        damage = 270;
+        manaCost = 60;
+    } else if (roll === 6) {
+        damage = 320;
+        manaCost = 80;
     }
-}
 
-// ⚙️ Default Attack (No Mana)
-function defaultAttack() {
-    dealDamage(60);
-    currentPlayer.mana += 40;
-}
-
-// ❤️ Damage & Heal
-function dealDamage(amount) {
-    opponent.hp -= amount;
-    if (opponent.hp < 0) opponent.hp = 0;
-    console.log(opponent.name + " takes " + amount + " damage");
-}
-
-function heal(amount) {
-    currentPlayer.hp += amount;
-    if (currentPlayer.hp > 1000) currentPlayer.hp = 1000;
-    console.log(currentPlayer.name + " heals " + amount);
-}
-
-// 🔍 Mana Check
-function hasEnoughMana(roll) {
-    return currentPlayer.mana >= getManaCost(roll);
-}
-
-// 🧠 Mana Cost
-function getManaCost(roll) {
-    switch (roll) {
-        case 1: return 20;
-        case 2: return 50;
-        case 3: return 10;
-        case 4: return 30;
-        case 5: return 0;
-        case 6: return 0;
-    }
-}
-
-// 🔁 End Turn Logic
-function endTurn(skipped = false) {
-    if (checkWinner()) return;
-
-    if (skipped) {
-        switchTurn();
-        updateUI();
+    // Check mana
+    if (player.mana < manaCost) {
+        console.log("Effect: NOT ENOUGH MANA - Using Basic Attack instead");
+        basicAttack();
         return;
     }
 
-    if (currentPlayer.extraTurns > 0) {
-        currentPlayer.extraTurns--;
-        console.log(currentPlayer.name + " uses extra turn (" + currentPlayer.extraTurns + " left)");
-    } else {
-        switchTurn();
+    enemy.hp -= damage;
+    player.mana -= manaCost;
+
+    if (enemy.hp < 0) enemy.hp = 0;
+
+    console.log("Effect: -" + damage + " enemy HP, -" + manaCost + " mana");
+    showStats();
+
+    endTurn();
+}
+
+// ❤️ HEAL + LUCKY REDRAW
+function healAction() {
+    let roll = rollDice();
+    let healHP = 0;
+    let healMana = 0;
+
+    console.log("\n=== PLAYER ACTION ===");
+    console.log("Action: Heal");
+    console.log("Dice Roll: " + roll);
+
+    if (roll === 1) {
+        healHP = 80;
+    } else if (roll === 2) {
+        healHP = 70;
+        healMana = 20;
+    } else if (roll === 3) {
+        healHP = 60;
+        healMana = 30;
+    } else if (roll === 4) {
+        healHP = 50;
+        healMana = 40;
+    } else if (roll === 5) {
+        healHP = 40;
+        healMana = 50;
+    } else if (roll === 6) {
+        console.log("Effect: Lucky Redraw! Rolling again...");
+        showStats();
+        setTimeout(function() {
+            healAction();
+        }, 300);
+        return;
     }
 
+    player.hp += healHP;
+    player.mana += healMana;
+
+    // Cap stats
+    if (player.hp > player.maxHP) player.hp = player.maxHP;
+    if (player.mana > player.maxMana) player.mana = player.maxMana;
+
+    console.log("Effect: +" + healHP + " HP, +" + healMana + " mana");
+    showStats();
+
+    endTurn();
+}
+
+// ⏭️ SKIP
+function skipAction() {
+    console.log("\n=== PLAYER ACTION ===");
+    console.log("Action: Skip");
+    console.log("Effect: Gained 2 extra turns");
+    player.extraTurns = 1;
+    showStats();
+    
+    // Skip turn - switch directly to enemy turn
+    currentPlayer = "enemy";
     updateUI();
+    setTimeout(enemyTurn, 500);
 }
 
-// 🔄 Switch Turn
-function switchTurn() {
-    if (currentPlayer === dragon1) {
-        currentPlayer = dragon2;
-        opponent = dragon1;
+// 🤖 ENEMY TURN (SIMPLE AI - STAGE AWARE)
+function enemyTurn() {
+    // Stage 2+ can use skills/heal more often
+    let actionChance = Math.floor(Math.random() * 3);
+    let action = 0;
+
+    if (currentStage === 1) {
+        action = actionChance; // 0, 1, or 2
+    } else if (currentStage === 2) {
+        action = Math.floor(Math.random() * 4); // More varied: 0-3
+    } else if (currentStage === 3) {
+        action = Math.floor(Math.random() * 5); // Boss is more aggressive: 0-4
+    }
+
+    console.log("\n=== ENEMY ACTION ===");
+
+    if (action === 0) {
+        enemyBasic();
+    } else if (action === 1) {
+        enemySkill();
     } else {
-        currentPlayer = dragon1;
-        opponent = dragon2;
+        enemyHeal();
     }
 }
 
-// 🏆 Check Winner
+// ENEMY ACTIONS (WITH CLEAR FEEDBACK)
+
+function enemyBasic() {
+    let roll = rollDice();
+    let damage = 80 + (roll * 10);
+
+    console.log("Action: Basic Attack");
+    console.log("Dice Roll: " + roll);
+
+    player.hp -= damage;
+    enemy.mana += 20;
+
+    if (enemy.mana > enemy.maxMana) enemy.mana = enemy.maxMana;
+    if (player.hp < 0) player.hp = 0;
+
+    console.log("Effect: -" + damage + " player HP, +" + 20 + " enemy mana");
+    showStats();
+
+    endTurn();
+}
+
+function enemySkill() {
+    let roll = rollDice();
+    let damage = 150 + (roll * 20);
+    let manaCost = 30;
+
+    console.log("Action: Skill");
+    console.log("Dice Roll: " + roll);
+
+    if (enemy.mana < manaCost) {
+        console.log("Effect: NOT ENOUGH MANA - Using Basic Attack instead");
+        showStats();
+        enemyBasic();
+        return;
+    }
+
+    player.hp -= damage;
+    enemy.mana -= manaCost;
+
+    if (player.hp < 0) player.hp = 0;
+
+    console.log("Effect: -" + damage + " player HP, -" + manaCost + " enemy mana");
+    showStats();
+
+    endTurn();
+}
+
+function enemyHeal() {
+    let roll = rollDice();
+    let healAmount = 50 + (roll * 10);
+
+    console.log("Action: Heal");
+    console.log("Dice Roll: " + roll);
+
+    enemy.hp += healAmount;
+
+    if (enemy.hp > enemy.maxHP) enemy.hp = enemy.maxHP;
+
+    console.log("Effect: +" + healAmount + " enemy HP");
+    showStats();
+
+    endTurn();
+}
+
+// 🔁 TURN SYSTEM
+function endTurn() {
+    if (checkWinner()) return;
+
+    if (currentPlayer === "player") {
+        // Check if player has extra turns left
+        if (player.extraTurns > 0) {
+            player.extraTurns -= 1;
+            console.log("\n>>> Extra turn!");
+            currentPlayer = "player";
+            updateUI();
+        } else {
+            // Player's turn done, switch to enemy
+            currentPlayer = "enemy";
+            updateUI();
+            setTimeout(enemyTurn, 500);
+        }
+    } else {
+        // Enemy turn done, switch to player
+        currentPlayer = "player";
+        updateUI();
+    }
+}
+
+// 🏆 WIN CHECK WITH STAGE PROGRESSION
 function checkWinner() {
-    if (dragon1.hp === 0 || dragon2.hp === 0) {
-        console.log("Game Over!");
-        console.log(dragon1.hp === 0 ? "Dragon 2 Wins!" : "Dragon 1 Wins!");
+    if (player.hp <= 0) {
+        console.log("\n❌❌ GAME OVER! You were defeated! ❌❌");
+        return true;
+    }
+
+    if (enemy.hp <= 0) {
+        if (currentStage === 1) {
+            console.log("\n✅ Stage 1 Defeated! Advancing to Stage 2...");
+            nextStage();
+        } else if (currentStage === 2) {
+            console.log("\n✅ Stage 2 Defeated! Advancing to Stage 3 (Final Boss)...");
+            nextStage();
+        } else if (currentStage === 3) {
+            console.log("\n🎉🎉 YOU WIN! THE DRAGON BOSS IS DEFEATED! 🎉🎉");
+            console.log("You are the ultimate champion!");
+            return true;
+        }
         return true;
     }
     return false;
 }
 
-// 🖥️ UI Update (for now console)
-function updateUI() {
-    console.log("\n--- STATUS ---");
-    console.log("Dragon 1 → HP:", dragon1.hp, "Mana:", dragon1.mana);
-    console.log("Dragon 2 → HP:", dragon2.hp, "Mana:", dragon2.mana);
-    console.log(currentPlayer.name + "'s turn\n");
+// 📍 LOAD NEXT STAGE
+function nextStage() {
+    currentStage += 1;
+
+    if (currentStage <= 3) {
+        let config = stageConfig[currentStage];
+        enemy = {
+            hp: config.maxHP,
+            maxHP: config.maxHP,
+            mana: config.maxMana,
+            maxMana: config.maxMana
+        };
+
+        console.log("\n" + config.name);
+        currentPlayer = "player";
+        updateUI();
+    }
 }
 
-// 🚀 Start
+// 🖥️ UI DISPLAY
+function updateUI() {
+    let stageName = stageConfig[currentStage].name;
+    console.log(stageName.padStart(25));
+    console.log("==========================================");
+    console.log("PLAYER: ".padStart(10) + player.hp + " / " + player.maxHP + " HP | " + player.mana + " / " + player.maxMana + " Mana");
+    console.log("ENEMY:  ".padStart(10) + enemy.hp + " / " + enemy.maxHP + " HP | " + enemy.mana + " / " + enemy.maxMana + " Mana");
+    console.log("==========================================");
+    console.log("Turn: ".padStart(18) + currentPlayer.toUpperCase());
+}
+
+// 📊 SHOW UPDATED STATS (AFTER EACH ACTION)
+function showStats() {
+    console.log("--- UPDATED STATUS ---");
+    console.log("Player: " + player.hp + " / " + player.maxHP + " HP | " + player.mana + " / " + player.maxMana + " Mana");
+    console.log("Enemy:  " + enemy.hp + " / " + enemy.maxHP + " HP | " + enemy.mana + " / " + enemy.maxMana + " Mana");
+}
+
+// 🚀 START
+console.log("🐉 Welcome to Dragon Fight!");
 updateUI();

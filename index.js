@@ -11,7 +11,9 @@ function rollDice(sides) {
 let player = {
     name: "You",
     hp: 30,
-    maxHp: 30
+    maxHp: 30,
+    mana: 20,
+    maxMana: 20,
 };
 
 let enemy = {
@@ -39,6 +41,8 @@ let Actions = {
     },
 
     skill: (attacker, target) => {
+        let manaCost = 5;
+        if (attacker.mana >= manaCost) {
         let roll = rollDice(20);
         console.log(`🎲 ${attacker.name} rolled d20: ${roll}`);
         
@@ -48,6 +52,7 @@ let Actions = {
         
         console.log(`✨ Skill! Damage: ${dmg}`);
         console.log(`💥 ${target.name} takes ${dmg} damage`);
+        }
     },
 
     regen: (attacker, target) => {

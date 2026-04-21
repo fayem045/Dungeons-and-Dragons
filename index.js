@@ -1,13 +1,9 @@
-// ==========================
-// 🎲 DICE ROLLER
-// ==========================
+// DICE ROLLER
 function rollDice(sides) {
     return Math.floor(Math.random() * sides) + 1;
 }
 
-// ==========================
-// 🧍 CHARACTERS
-// ==========================
+//  CHARACTERS
 let player = {
     name: "You",
     hp: 30,
@@ -67,17 +63,13 @@ let Actions = {
     }
 };
 
-// ==========================
-// 📊 SHOW STATUS
-// ==========================
+//  SHOW STATUS
 function showStatus() {
-    console.log(`\n❤️ ${player.name}: ${player.hp}/${player.maxHp} HP`);
-    console.log(`❤️ ${enemy.name}: ${enemy.hp}/${enemy.maxHp} HP\n`);
+    console.log(`\n🦸 ${player.name}: ${player.hp}/${player.maxHp} HP`);
+    console.log(`🤖 ${enemy.name}: ${enemy.hp}/${enemy.maxHp} HP\n`);
 }
 
-// ==========================
-// 🤖 ENEMY AI
-// ==========================
+//  ENEMY AI
 function enemyTurn() {
     let choice = Math.random();
     
@@ -93,9 +85,7 @@ function enemyTurn() {
     }
 }
 
-// ==========================
-// 🎮 INTERACTIVE GAME (CONSOLE ONLY)
-// ==========================
+//  INTERACTIVE GAME (CONSOLE ONLY)
 function playerTurn() {
     if (player.hp <= 0 || enemy.hp <= 0) {
         endGame();
@@ -107,12 +97,11 @@ function playerTurn() {
     console.log(`1) Attack - Roll d20 (damage = roll + 3)`);
     console.log(`2) Skill - Roll d20 (damage = roll + 5)`);
     console.log(`3) Regen - Roll d6 (heal = roll + 3)`);
-    // console.log(`\n⌨️ Type: action(1), action(2), or action(3)\n`);
+    console.log(`\n⌨️ Type: action(1), action(2), or action(3)\n`);
 }
 
-// ==========================
-// 🎯 PLAYER ACTION HANDLER
-// ==========================
+
+//  PLAYER ACTION HANDLER
 function action(choice) {
     if (!gameActive) {
         console.log("❌ Game not active! Refresh page to start.");
@@ -162,9 +151,7 @@ function endGame() {
     }
 }
 
-// ==========================
-// 🚀 WELCOME & START GAME
-// ==========================
+//  WELCOME & START GAME
 console.clear();
 console.log(`
 ╔═══════════════════════════════════════════╗
@@ -174,7 +161,7 @@ console.log(`
 console.log(`👋 Welcome to the D&D Console Battle!`);
 console.log(`📖 Roll dice to determine your damage!`);
 console.log(`🎲 Higher rolls = Higher damage`);
-console.log(`🎮 Type actions directly in the console.\n`);
+console.log(`🎮 Type actions directly in the console./ Click the Buttons.\n`);
 console.log(`${player.name} vs ${enemy.name}\n`);
 showStatus();
 playerTurn();

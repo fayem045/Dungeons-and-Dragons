@@ -13,7 +13,7 @@ let player = {
 };
 
 let enemy = {
-    name: "Enemy",
+    name: "Dragon",
     hp: 30,
     maxHp: 30,
     mana:15,
@@ -67,8 +67,10 @@ let Actions = {
 
 //  SHOW STATUS
 function showStatus() {
+    console.log("-------Player Status-------");
     console.log(`\n🦸 ${player.name}: ${player.hp}/${player.maxHp} HP`);
     console.log(`\n🦸 ${player.name}: ${player.mana}/${player.maxMana} Mana`);
+    console.log("-------Enemy Status-------");
     console.log(`🤖 ${enemy.name}: ${enemy.hp}/${enemy.maxHp} HP\n`);
     console.log(`🤖 ${enemy.name}: ${enemy.mana}/${enemy.maxMana} Mana\n`);
 }

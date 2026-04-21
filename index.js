@@ -267,7 +267,7 @@ function endGame(playerWon) {
 console.clear();
 console.log(`
 ╔═══════════════════════════════════════════╗
-║   ⚔️  DUNGEONS & DRAGONS CONSOLE GAME  ⚔️   ║
+║   ⚔️  DRAGONS DUNGEONS CONSOLE GAME  ⚔️  ║
 ╚═══════════════════════════════════════════╝
 `);
 console.log(`👋 Welcome to the D&D Console Battle!`);

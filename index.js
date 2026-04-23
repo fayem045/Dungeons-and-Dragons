@@ -149,12 +149,12 @@ let Actions = {
 
 //  SHOW STATUS
 function showStatus() {
-    console.log("-------Player Status-------");
+    console.log("%c============= Player Status =============", "color: blue; font-weight: bold;");    
     console.log(`🏅 Level: ${player.level}/${MAX_LEVEL}`);
     console.log(`\n🦸 ${player.name}: ${player.hp}/${player.maxHp} HP`);
     console.log(`\n🦸 ${player.name}: ${player.mana}/${player.maxMana} Mana`);
     console.log(`⚔️ Attack Bonus: +${player.attackBonus} | ✨ Skill Bonus: +${player.skillBonus}`);
-    console.log("-------Enemy Status-------");
+    console.log("%c-------Enemy Status-------", "color: red; font-weight: bold;");
     console.log(`🌍 Stage: ${currentLevel}/${MAX_LEVEL}`);
     console.log(`🤖 ${enemy.name}: ${enemy.hp}/${enemy.maxHp} HP\n`);
     console.log(`🤖 ${enemy.name}: ${enemy.mana}/${enemy.maxMana} Mana\n`);
@@ -184,7 +184,7 @@ function playerTurn() {
     }
 
     gameActive = true;
-    console.log(`------------------------------------------------------------ YOUR TURN -----------------------------------------------`);
+    console.log("%c------------------------------------------------------------ YOUR TURN -----------------------------------------------", "color: green; font-weight: bold;");
     console.log(`1) Attack - Roll d20 (damage = roll + ${player.attackBonus})`);
     console.log(`2) Skill - Roll d20 (damage = roll + ${player.skillBonus})`);
     console.log(`3) Regen - Roll d6 (heal = roll + 3)`);

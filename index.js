@@ -20,8 +20,8 @@ let currentLevel = 1;
 
 const enemiesByLevel = [
     { name: "Goblin Chief", hp: 15, mana: 10, attackBonus: 2, skillBonus: 4 },
-    { name: "Dark Knight", hp: 20, mana: 14, attackBonus: 3, skillBonus: 5},
-    { name: "Dragon", hp: 60, mana: 18, attackBonus: 4, skillBonus: 8 }
+    { name: "Dark Knight", hp: 30, mana: 14, attackBonus: 3, skillBonus: 5},
+    { name: "Dragon", hp: 100, mana: 18, attackBonus: 4, skillBonus: 8 }
 ];
 
 function createEnemy(level) {

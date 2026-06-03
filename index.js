@@ -40,11 +40,20 @@ function createEnemy(level) {
 
 let enemy = createEnemy(currentLevel);
 
-const playerImageUrl =
-    "https://img.icons8.com/office/256/ffffff/knight-helmet.png";
+const playerImageUrl = "./images/player.jpg";
 
-const enemyImageUrl =
-    "https://img.icons8.com/color/256/000000/goblin.png";
+function getEnemyImageUrl(name) {
+    switch (name) {
+        case "Goblin":
+            return "./images/goblin.jpg";
+        case "Dark Knight":
+            return "./images/darkKnight.jpg";
+        case "Dragon":
+            return "./images/dragon.jpg";
+        default:
+            return "./images/goblin.jpg";
+    }
+}
 
 let gameActive = false;
 
@@ -85,7 +94,7 @@ function updateBattleImages() {
     }
 
     if (enemyImage) {
-        enemyImage.src = enemyImageUrl;
+        enemyImage.src = getEnemyImageUrl(enemy.name);
         enemyImage.alt = enemy.name;
     }
 
@@ -108,6 +117,7 @@ function showBattleScene() {
         scene.classList.remove("d-none");
     }
 
+    gameActive = true;
     updateBattleImages();
 
     appendBattleLog(

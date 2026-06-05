@@ -78,6 +78,12 @@ function appendBattleLog(message) {
     }
 }
 
+function setActionReaction(message) {
+    const reaction = document.getElementById("reactionMessages");
+    if (!reaction) return;
+    reaction.textContent = message;
+}
+
 // ==========================================
 // UPDATE BATTLE IMAGES
 // ==========================================
@@ -124,6 +130,7 @@ function showBattleScene() {
         `⚔️ Player 1 prepares to fight the ${enemy.name}!`
     );
 
+    setActionReaction(`Battle ready! Press Attack, Skill, or Regen.`);
     showStatus();
 }
 
@@ -430,6 +437,7 @@ function enemyTurn() {
         appendBattleLog(
             `👾 ${enemy.name} uses Regen!`
         );
+        setActionReaction(`Enemy is healing. Watch your HP.`);
 
         Actions.regen(enemy);
 
@@ -440,6 +448,7 @@ function enemyTurn() {
         appendBattleLog(
             `👾 ${enemy.name} attacks!`
         );
+        setActionReaction(`Enemy attack incoming. Brace for damage.`);
 
         Actions.attack(enemy, player);
 
@@ -450,6 +459,7 @@ function enemyTurn() {
         appendBattleLog(
             `👾 ${enemy.name} casts Skill!`
         );
+        setActionReaction(`Enemy skill cast. Stay sharp.`);
 
         Actions.skill(enemy, player);
     }
@@ -496,6 +506,7 @@ function playerTurn() {
     appendBattleLog(
         `🟢 Your turn! Choose Attack, Skill, or Regen.`
     );
+    setActionReaction(`Your turn now. Pick a button to attack, cast skill, or regen.`);
 }
 
 // ==========================================
@@ -549,6 +560,7 @@ function action(choice) {
         appendBattleLog(
             `🗡️ ${player.name} attacks ${enemy.name}!`
         );
+        setActionReaction(`Attack triggered. Rolling dice for damage...`);
 
         Actions.attack(player, enemy);
 
@@ -557,6 +569,7 @@ function action(choice) {
         appendBattleLog(
             `✨ ${player.name} uses Skill!`
         );
+        setActionReaction(`Skill cast started. Using mana and rolling for effect...`);
 
         Actions.skill(player, enemy);
 
@@ -565,6 +578,7 @@ function action(choice) {
         appendBattleLog(
             `💚 ${player.name} uses Regen!`
         );
+        setActionReaction(`Regeneration activated. Rolling dice to heal you...`);
 
         Actions.regen(player);
 
